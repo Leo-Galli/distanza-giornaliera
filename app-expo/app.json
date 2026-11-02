@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "Distanza giornaliera",
+    "slug": "distanza-giornaliera",
+    "scheme": "distanzagiornaliera",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0b1019",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.example.distanzagiornaliera",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "L'app usa il GPS per misurare la distanza percorsa durante la giornata."
+      }
+    },
+    "android": {
+      "package": "org.example.distanzagiornaliera",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "L'app usa il GPS per misurare la distanza percorsa durante la giornata."
+        }
+      ]
+    ]
+  }
+}

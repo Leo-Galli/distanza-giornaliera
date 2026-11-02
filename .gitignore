@@ -1,0 +1,33 @@
+# --- Python (distance_tracker.py, main.py) ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+.buildozer/
+bin/
+
+# --- Node / Expo (app-expo/) ---
+node_modules/
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+.metro-health-check*
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.tsbuildinfo
+app-expo/ios/
+app-expo/android/
+
+# --- OS / editor ---
+.DS_Store
+*.pem
+.env*.local
