@@ -1,12 +1,16 @@
 # Come funziona la versione Expo e perché gira su tutti i dispositivi
 
-Questo documento spiega due cose:
+Questo documento spiega:
 
 1. **Come** la porta Expo/React Native (`app-expo/`) riesce a girare sia su Android sia su
    iPhone (e anche sul Web) partendo dallo stesso codice, a differenza della versione
    Python/Kivy originale nella cartella principale (che gira solo su Android via Buildozer).
 2. **Quale problema** impediva ai comandi (`npm start`, `npm test`, ecc.) di funzionare su
    questo PC Windows, e come è stato risolto — senza toccare l'app Python originale.
+3. **Come funziona il contapassi** aggiunto in un secondo momento, e perché è più affidabile
+   della sola distanza GPS.
+4. Perché **scuotere il telefono non apre più il menu sviluppatore** di Expo Go.
+5. Da dove viene lo **stile grafico** dell'interfaccia.
 
 L'app Python/Kivy (`distance_tracker.py`, `main.py`, `buildozer.spec`) **non è stata
 modificata**: resta la versione "storica", compilabile solo per Android tramite Buildozer.
@@ -166,3 +170,81 @@ versioni compatibili. Risultato verificato:
 - `npm run typecheck` → nessun errore
 - `npm start` → il server Metro si avvia e serve correttamente il bundle JavaScript
   dell'app (verificato scaricando il bundle per Android via HTTP).
+
+Mancavano anche `react-dom` e `react-native-web`: senza queste due dipendenze `npm run web`
+non riusciva a compilare (`expo start --web` richiede entrambe per qualunque progetto Expo,
+non solo per questo). Sono state installate con `expo install`; ora anche la build Web
+compila correttamente.
+
+## 3. Come funziona il contapassi
+
+La distanza GPS (`src/distanceTracker.ts`, invariata) resta il modo più preciso per misurare
+**quanta strada** si fa all'aperto, ma non è pensata per contare i passi: al chiuso, o quando
+ci si muove poco, il segnale GPS è impreciso o assente e i filtri anti-rumore del tracker
+(necessari per non "inventare" distanza per colpa del rumore GPS) finiscono per non contare
+niente. Per un vero contapassi si usa invece il sensore passi dedicato del telefono
+(accelerometro + coprocessore di movimento), tramite `Pedometer` di `expo-sensors` — la stessa
+componentistica hardware usata dai contapassi nativi di Android e iOS, molto più precisa al
+chiuso e indipendente dal GPS.
+
+Le due funzioni restano indipendenti nell'app: se il permesso "attività fisica" viene negato,
+il contapassi mostra "non disponibile" ma la distanza GPS continua a funzionare come prima
+(e viceversa).
+
+### iOS: il sistema tiene già il conto
+
+Su iOS, `Pedometer.getStepCountAsync(inizioGiornata, adesso)` chiede direttamente al sistema
+operativo quanti passi sono già stati fatti oggi (Apple registra i passi in background tramite
+il coprocessore di movimento, indipendentemente dal fatto che l'app sia aperta). L'app si limita
+a interrogare questa API ogni pochi secondi mentre è in primo piano: non deve salvare o sommare
+nulla, perché la fonte di verità è sempre il sistema operativo. Per questo su iOS non esiste
+`src/stepTracker.ts` nel percorso di codice: l'informazione è già corretta "di fabbrica".
+
+### Android: il sensore riparte da 0 ad ogni ascolto
+
+Su Android non esiste un equivalente di `getStepCountAsync` (lo riporta anche la libreria:
+"Getting step count for date range is not supported on Android yet"). L'unica via è
+`Pedometer.watchStepCount(...)`, che però segue il sensore nativo `TYPE_STEP_COUNTER`: il
+modulo nativo di Expo **azzera il contatore ogni volta che ci si mette in ascolto** (vedi
+`PedometerModule.kt` nel codice sorgente di `expo-sensors`), quindi il valore ricevuto è
+"passi da quando ho premuto AVVIA l'ultima volta", non il totale di oggi.
+
+`src/stepTracker.ts` (`DailyStepTracker`) risolve il problema con la stessa filosofia già usata
+per la distanza in `distanceTracker.ts`: un totale "di oggi" persistito con
+`@react-native-async-storage/async-storage`, che si azzera da solo a mezzanotte. Ad ogni nuova
+sessione di ascolto (`startNewSession()`) il totale già confermato viene "congelato" come base,
+e i nuovi passi della sessione corrente (`updateSession(...)`) si sommano sopra quella base — così
+chiudere e riaprire l'app, o premere PAUSA e poi AVVIA di nuovo, non fa perdere né raddoppiare
+passi già contati. La logica è testata in `src/stepTracker.test.ts`.
+
+## 4. Perché scuotere il telefono non apre più il menu di Expo Go
+
+Scuotere il telefono (o premere `Ctrl+Cmd+Z`/tre dita sullo schermo) apre normalmente il "menu
+sviluppatore" di Expo Go — comodo durante lo sviluppo, ma indesiderato mentre si usa l'app come
+se fosse già quella finita. A partire da Expo SDK 58, la CLI supporta la variabile d'ambiente
+`EXPO_NO_DEV_MENU=1`, che avvia il progetto con il menu sviluppatore disattivato (oltre a
+nascondere il pulsante degli strumenti e saltare l'onboarding).
+
+`scripts/expo-cli.js` (il wrapper usato da tutti gli script, vedi sezione 2) imposta questa
+variabile automaticamente prima di avviare `expo start`, quindi non serve nessuna azione manuale:
+basta usare `npm start` / `start.bat` / `start.sh` come sempre. La variabile riguarda solo la
+sessione di sviluppo con Expo Go: non esiste equivalente da disattivare in un'app pubblicata,
+perché il menu sviluppatore (e il suo gesto di attivazione) non esistono già più nelle build di
+produzione.
+
+## 5. Da dove viene lo stile grafico
+
+L'interfaccia (pannello crema con bordo spesso, intestazione colorata, bottoni "3D" con
+ombreggiatura in basso, font arrotondato "Lilita One", anello di progresso per i passi) riusa lo
+stesso linguaggio visivo già usato in un altro progetto Expo dell'autore
+(`C:\Users\leoga\Desktop\gioco`, vedi `src/ui/theme.ts` e `src/ui/Primitives.tsx` di
+quel progetto): stessi colori, stesso font (pacchetto pubblico `@expo-google-fonts/lilita-one`,
+licenza Google Fonts, non un file copiato), stessa tecnica per i bottoni "a rilievo" e per
+l'ombra "da adesivo" sul testo colorato. `src/theme.ts` e `src/ui.tsx` in questo progetto sono
+una versione ridotta e adattata di quei due file, con solo i componenti che servono qui (niente
+suoni, navigazione o economia di gioco, che non hanno senso in questa app).
+
+L'anello di progresso dei passi usa `react-native-svg` (incluso in Expo Go), con un cerchio
+tratteggiato la cui lunghezza visibile rappresenta la percentuale di un obiettivo di 10.000
+passi — una scelta comune nelle app di fitness, modificabile cambiando la costante `STEP_GOAL`
+in `App.tsx`.

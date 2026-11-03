@@ -1,8 +1,12 @@
 # Distanza giornaliera — versione Expo (Android e iPhone)
 
-Porting in React Native/Expo dell'app Python/Kivy nella cartella principale. Stessa logica di calcolo (`src/distanceTracker.ts`, porting 1:1 di `distance_tracker.py`): distanza Haversine, filtri su precisione/rumore/salti GPS, azzeramento automatico a mezzanotte, salvataggio locale.
+Porting in React Native/Expo dell'app Python/Kivy nella cartella principale. Stessa logica di calcolo (`src/distanceTracker.ts`, porting 1:1 di `distance_tracker.py`, non modificata): distanza Haversine, filtri su precisione/rumore/salti GPS, azzeramento automatico a mezzanotte, salvataggio locale.
 
-A differenza della versione Buildozer (solo Android), questa gira anche su **iPhone**, tramite l'app **Expo Go**.
+A differenza della versione Buildozer (solo Android), questa gira anche su **iPhone** (e nel browser), tramite l'app **Expo Go**.
+
+Oltre alla distanza GPS, l'app mostra un vero **contapassi di oggi**, letto dal sensore passi del
+telefono (non stimato dal GPS): più affidabile al chiuso e quando ci si muove poco. Vedi
+[`COME-FUNZIONA.md`](./COME-FUNZIONA.md) per i dettagli su come funziona su ogni piattaforma.
 
 ## Avvio rapido
 
@@ -43,11 +47,17 @@ npm run typecheck   # controllo dei tipi TypeScript
 
 ## Struttura
 
-- `App.tsx` — interfaccia (stessa UI della versione Kivy: AVVIA/PAUSA, distanza del giorno, azzeramento) e accesso al GPS tramite `expo-location`.
-- `src/distanceTracker.ts` — calcolo Haversine, controlli di qualità, persistenza con `@react-native-async-storage/async-storage`.
+- `App.tsx` — interfaccia (AVVIA/PAUSA, anello dei passi, distanza del giorno, azzeramento), accesso al GPS tramite `expo-location` e al contapassi tramite `expo-sensors` (`Pedometer`).
+- `src/distanceTracker.ts` — calcolo Haversine, controlli di qualità, persistenza con `@react-native-async-storage/async-storage`. **Non modificato** rispetto alla versione originale.
 - `src/distanceTracker.test.ts` — porting dei test di `tests/test_distance_tracker.py`.
+- `src/stepTracker.ts` — somma e persiste i passi di oggi letti dal sensore (su Android, dove il sensore riparte da 0 ad ogni sessione di ascolto; vedi `COME-FUNZIONA.md`).
+- `src/theme.ts` / `src/ui.tsx` — stile grafico "chunky" (pannello crema, font Lilita One, bottoni "3D", anello di progresso) e componenti riusabili.
 - `start.bat` / `start.sh` — avviano il server Expo e mostrano il QR code per Expo Go.
+- `scripts/expo-cli.js` — avvia la CLI di Expo evitando gli shim `.cmd` rotti su Windows e disabilita il menu sviluppatore che si apre scuotendo il telefono (vedi `COME-FUNZIONA.md`).
 
-## Permessi posizione
+## Permessi
 
-L'app richiede l'autorizzazione "posizione precisa" (foreground) sia su Android (`ACCESS_FINE_LOCATION`) sia su iOS (`NSLocationWhenInUseUsageDescription`), configurati in `app.json`. Come nella versione originale, la misurazione funziona solo con l'app aperta in primo piano.
+- **Posizione** (per la distanza): Android `ACCESS_FINE_LOCATION`/`ACCESS_COARSE_LOCATION`, iOS `NSLocationWhenInUseUsageDescription`. La misurazione funziona solo con l'app aperta in primo piano.
+- **Attività fisica/motion** (per il contapassi): Android `ACTIVITY_RECOGNITION`, iOS `NSMotionUsageDescription`. Se il permesso viene negato, il contapassi mostra "non disponibile" ma la distanza GPS continua a funzionare normalmente.
+
+Entrambi configurati in `app.json`.

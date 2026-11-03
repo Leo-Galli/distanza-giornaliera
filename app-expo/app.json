@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "org.example.distanzagiornaliera",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "L'app usa il GPS per misurare la distanza percorsa durante la giornata."
+        "NSLocationWhenInUseUsageDescription": "L'app usa il GPS per misurare la distanza percorsa durante la giornata.",
+        "NSMotionUsageDescription": "L'app usa il contapassi del telefono per contare i passi di oggi."
       }
     },
     "android": {
@@ -23,7 +24,11 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACTIVITY_RECOGNITION"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -35,7 +40,14 @@
         {
           "locationWhenInUsePermission": "L'app usa il GPS per misurare la distanza percorsa durante la giornata."
         }
-      ]
+      ],
+      [
+        "expo-sensors",
+        {
+          "motionPermission": "L'app usa il contapassi del telefono per contare i passi di oggi."
+        }
+      ],
+      "expo-font"
     ]
   }
 }

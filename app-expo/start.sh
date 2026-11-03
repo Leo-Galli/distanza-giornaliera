@@ -32,9 +32,10 @@ if [ ! -d node_modules/expo ]; then
 fi
 
 # Expo Go su iPhone richiede lo stesso account Expo nel terminale e nell'app (Android non ne ha bisogno)
-# (invocato tramite "node node_modules/expo/bin/cli" invece di "npx expo": su Windows gli shim .cmd
-#  generati in node_modules/.bin si rompono se il percorso del progetto contiene caratteri come "^")
-if ! node node_modules/expo/bin/cli whoami >/dev/null 2>&1; then
+# (invocato tramite "node scripts/expo-cli.js" invece di "npx expo": su Windows gli shim .cmd
+#  generati in node_modules/.bin si rompono se il percorso del progetto contiene caratteri come "^";
+#  questo wrapper disabilita anche il menu sviluppatore che si apre scuotendo il telefono)
+if ! node scripts/expo-cli.js whoami >/dev/null 2>&1; then
   cat <<'MSG'
 
 ================================================================
@@ -44,7 +45,7 @@ if ! node node_modules/expo/bin/cli whoami >/dev/null 2>&1; then
 ================================================================
 
 MSG
-  node node_modules/expo/bin/cli login || true
+  node scripts/expo-cli.js login || true
 fi
 
 PORT="$(node scripts/free-port.js 8081)"
@@ -63,7 +64,7 @@ if [ "${MODE:-}" = "tunnel" ]; then
 ================================================================
 
 MSG
-  exec node node_modules/expo/bin/cli start --tunnel --clear --port "$PORT"
+  exec node scripts/expo-cli.js start --tunnel --clear --port "$PORT"
 fi
 
 # Modalita LAN: l'IP dell'interfaccia che raggiunge davvero il router (ignora docker/VPN/adattatori virtuali)
@@ -90,4 +91,4 @@ echo " Non si carica? Controlla che il firewall permetta la porta $PORT, oppure 
 echo "     ./start.sh tunnel"
 echo "================================================================"
 echo
-exec node node_modules/expo/bin/cli start --lan --clear --port "$PORT"
+exec node scripts/expo-cli.js start --lan --clear --port "$PORT"
