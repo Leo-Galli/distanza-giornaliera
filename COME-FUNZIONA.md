@@ -2,11 +2,12 @@
 
 Questo documento spiega:
 
-1. **Come** la porta Expo/React Native (`app-expo/`) riesce a girare sia su Android sia su
-   iPhone (e anche sul Web) partendo dallo stesso codice, a differenza della versione
-   Python/Kivy originale nella cartella principale (che gira solo su Android via Buildozer).
+1. **Come** la porta Expo/React Native (questa app, alla radice del repository) riesce a girare
+   sia su Android sia su iPhone (e anche sul Web) partendo dallo stesso codice, a differenza
+   della versione Python/Kivy originale in [`python-kivy/`](python-kivy) (che gira solo su
+   Android via Buildozer).
 2. **Quale problema** impediva ai comandi (`npm start`, `npm test`, ecc.) di funzionare su
-   questo PC Windows, e come è stato risolto — senza toccare l'app Python originale.
+   questo PC Windows, e come è stato risolto.
 3. **Come funziona il contapassi** aggiunto in un secondo momento, e perché è più affidabile
    della sola distanza GPS.
 4. Perché **scuotere il telefono non apre più il menu sviluppatore** di Expo Go.
@@ -14,19 +15,19 @@ Questo documento spiega:
 6. Come funzionano **statistiche, obiettivi, serie ("streak") e promemoria** in stile Duolingo.
 7. Come viene generato e pubblicato l'**APK Android** tramite EAS Build.
 
-L'app Python/Kivy (`distance_tracker.py`, `main.py`, `buildozer.spec`) **non è stata
-modificata**: resta la versione "storica", compilabile solo per Android tramite Buildozer.
-Tutto quello che segue riguarda esclusivamente `app-expo/`.
+La versione Python/Kivy in [`python-kivy/`](python-kivy) (`distance_tracker.py`, `main.py`,
+`buildozer.spec`) **non è stata modificata**: resta la versione "storica", compilabile solo
+per Android tramite Buildozer. Tutto quello che segue riguarda esclusivamente questa app.
 
 ## 1. Perché la stessa app gira su Android, iPhone e Web
 
 ### Un solo codice, tre piattaforme
 
 - **Logica di calcolo** (`src/distanceTracker.ts`): è un porting 1:1, in TypeScript puro,
-  di `distance_tracker.py` (formula di Haversine, filtri su precisione/rumore/salti GPS,
-  azzeramento a mezzanotte). Non dipende da nessuna API di piattaforma, quindi è identica
+  di `python-kivy/distance_tracker.py` (formula di Haversine, filtri su precisione/rumore/salti
+  GPS, azzeramento a mezzanotte). Non dipende da nessuna API di piattaforma, quindi è identica
   su Android, iPhone e Web, ed è testata con lo stesso identico set di casi di
-  `tests/test_distance_tracker.py` (vedi `src/distanceTracker.test.ts`).
+  `python-kivy/tests/test_distance_tracker.py` (vedi `src/distanceTracker.test.ts`).
 - **Interfaccia** (`App.tsx`): scritta con i componenti base di React Native
   (`View`, `Text`, `Pressable`, `StyleSheet`). Questi componenti non sono Android o iOS:
   React Native li traduce, al momento della build, nei widget nativi di ciascuna
@@ -113,7 +114,7 @@ modificare una cartella del Desktop esterna al progetto — non è stato fatto.
 
 ### Soluzione applicata
 
-In `app-expo/package.json`, `start.bat` e `start.sh`, i comandi non passano più dagli shim
+In `package.json`, `start.bat` e `start.sh`, i comandi non passano più dagli shim
 `.cmd` generati (`expo`, `tsc`, `jest` chiamati "per nome"), ma invocano direttamente il
 file JavaScript del pacchetto tramite Node:
 
@@ -137,8 +138,8 @@ Questa soluzione:
 - **Funziona da qualunque cartella**, non solo su questo PC: è semplicemente più robusta,
   indipendentemente dal nome del percorso.
 - **Non richiede di rinominare nessuna cartella** del Desktop/progetto.
-- **Non tocca l'app Python/Kivy originale**: riguarda solo gli script di avvio di
-  `app-expo/`.
+- **Non tocca l'app Python/Kivy originale** in `python-kivy/`: riguarda solo gli script di
+  avvio di questa app.
 
 Comandi "sicuri" da usare da ora in poi in questo progetto:
 

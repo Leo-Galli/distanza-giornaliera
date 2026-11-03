@@ -1,0 +1,7 @@
+# --- Python (distance_tracker.py, main.py) ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+.buildozer/
+bin/

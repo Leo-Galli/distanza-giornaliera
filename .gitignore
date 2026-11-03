@@ -1,12 +1,4 @@
-# --- Python (distance_tracker.py, main.py) ---
-__pycache__/
-*.pyc
-.venv/
-venv/
-.buildozer/
-bin/
-
-# --- Node / Expo (app-expo/) ---
+# --- Node / Expo (app principale, alla radice del repository) ---
 node_modules/
 .expo/
 dist/
@@ -24,8 +16,8 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 *.tsbuildinfo
-app-expo/ios/
-app-expo/android/
+/ios/
+/android/
 
 # --- OS / editor ---
 .DS_Store

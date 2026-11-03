@@ -52,6 +52,6 @@ export function TodayScreen({
 }
 
 const styles = StyleSheet.create({
-  body: { flex: 1, padding: space.lg, gap: space.md, alignItems: 'center' },
+  body: { flex: 1, minWidth: 0, padding: space.lg, gap: space.md, alignItems: 'center' },
   ringWrap: { alignItems: 'center', justifyContent: 'center', paddingVertical: space.sm },
 });

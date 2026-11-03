@@ -55,5 +55,5 @@ export function StatsScreen({
 const styles = StyleSheet.create({
   body: { padding: space.lg, gap: space.md, alignItems: 'center', paddingBottom: space.xl },
   row: { flexDirection: 'row', gap: space.md, width: '100%' },
-  half: { flex: 1 },
+  half: { flex: 1, minWidth: 0 },
 });

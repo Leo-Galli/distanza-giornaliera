@@ -42,8 +42,8 @@ export function Card({ children, style, accent }: { children: React.ReactNode; s
 export function Band({ title, sub }: { title: string; sub?: string }) {
   return (
     <View style={styles.band}>
-      <T v="h2" style={{ textAlign: 'center' }}>{title}</T>
-      {sub ? <T v="label" style={{ textAlign: 'center' }}>{sub}</T> : null}
+      <T v="h2" style={{ textAlign: 'center', flexShrink: 1, width: '100%' }}>{title}</T>
+      {sub ? <T v="label" style={{ textAlign: 'center', flexShrink: 1, width: '100%' }}>{sub}</T> : null}
     </View>
   );
 }
@@ -236,10 +236,11 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card, borderRadius: radius.md, borderWidth: 2, borderColor: colors.border,
     borderBottomWidth: 4, borderBottomColor: '#D4B882', padding: space.md, alignItems: 'center', gap: 2,
+    maxWidth: '100%',
   },
   band: {
     backgroundColor: colors.band, borderRadius: radius.md, paddingHorizontal: 14, paddingVertical: 10,
-    borderWidth: 1, borderColor: colors.border, gap: 2,
+    borderWidth: 1, borderColor: colors.border, gap: 2, alignSelf: 'stretch', width: '100%', maxWidth: '100%', flexShrink: 1,
   },
   textButton: { alignSelf: 'center', paddingVertical: 10, paddingHorizontal: 12 },
   chip: {

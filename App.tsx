@@ -261,6 +261,7 @@ export default function App() {
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
+      <View style={styles.shell}>
       <Panel style={styles.panel}>
         <View style={styles.header}>
           <Icon name={activeTab.icon} size={24} color="#fff" />
@@ -305,6 +306,7 @@ export default function App() {
 
         <TabBar tabs={TABS} value={tab} onChange={setTab} />
       </Panel>
+      </View>
     </View>
   );
 }
@@ -317,8 +319,16 @@ const styles = {
     paddingTop: 50,
     paddingBottom: space.lg,
   },
+  shell: {
+    flex: 1 as const,
+    width: '100%' as const,
+    maxWidth: 480,
+    alignSelf: 'center' as const,
+    minWidth: 0,
+  },
   panel: {
     flex: 1 as const,
+    minWidth: 0,
   },
   header: {
     flexDirection: 'row' as const,
@@ -344,5 +354,6 @@ const styles = {
   },
   screen: {
     flex: 1 as const,
+    minWidth: 0,
   },
 };
