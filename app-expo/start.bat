@@ -44,7 +44,9 @@ if not exist "node_modules\expo" (
 )
 
 rem ---- Expo Go su iPhone richiede lo stesso account Expo nel terminale e nell'app (Android non ne ha bisogno)
-call npx expo whoami >nul 2>&1
+rem     (invocato tramite "node node_modules\expo\bin\cli" invece di "npx expo": gli shim .cmd di npm
+rem      generati in node_modules\.bin si rompono se il percorso del progetto contiene caratteri come "^")
+call node node_modules\expo\bin\cli whoami >nul 2>&1
 if errorlevel 1 (
   echo.
   echo ================================================================
@@ -52,7 +54,7 @@ if errorlevel 1 (
   echo  Non ne hai uno? Creane uno gratis su https://expo.dev/signup
   echo  Su Android puoi ignorare questo passaggio e premere Invio.
   echo ================================================================
-  call npx expo login
+  call node node_modules\expo\bin\cli login
 )
 
 set PORT=8081
@@ -81,7 +83,7 @@ echo  reti PRIVATE ^(accetta il popup la prima volta^), oppure prova:
 echo      start.bat tunnel
 echo ================================================================
 echo.
-call npx expo start --lan --clear --port !PORT!
+call node node_modules\expo\bin\cli start --lan --clear --port !PORT!
 goto end
 
 :start_tunnel
@@ -100,7 +102,7 @@ echo  a un minuto per connettersi ^(attendi "Tunnel ready"^). Se resta
 echo  bloccato, premi Ctrl+C e usa la modalita LAN predefinita:  start.bat
 echo ================================================================
 echo.
-call npx expo start --tunnel --clear --port !PORT!
+call node node_modules\expo\bin\cli start --tunnel --clear --port !PORT!
 goto end
 
 :help

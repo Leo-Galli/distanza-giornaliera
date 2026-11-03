@@ -30,10 +30,16 @@ Se la rete Wi-Fi blocca la connessione diretta (reti aziendali/scolastiche, tele
 ## Comandi utili
 
 ```bash
-npm start       # equivalente a ./start.sh senza le scelte guidate
-npm test        # esegue i test del motore di calcolo (Jest)
-npx tsc --noEmit   # controllo dei tipi TypeScript
+npm start           # equivalente a ./start.sh senza le scelte guidate
+npm test            # esegue i test del motore di calcolo (Jest)
+npm run typecheck   # controllo dei tipi TypeScript
 ```
+
+> Nota tecnica: questi script invocano i tool (`expo`, `jest`, `tsc`) tramite
+> `node node_modules/<pacchetto>/bin/...` invece dei comandi diretti (`npx expo`, `npx jest`...).
+> Su Windows gli shim `.cmd` generati da npm in `node_modules\.bin` possono rompersi se il percorso
+> del progetto contiene certi caratteri speciali (es. `^`): vedi [`COME-FUNZIONA.md`](./COME-FUNZIONA.md)
+> per i dettagli.
 
 ## Struttura
 
