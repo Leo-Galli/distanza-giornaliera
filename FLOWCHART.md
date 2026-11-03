@@ -72,7 +72,7 @@ flowchart TD
     CheckAvail -- No --> NoPed
     CheckAvail -- Sì --> CheckIOS{"iOS?"}
     CheckIOS -- Sì --> InitialQuery["getStepCountAsync(inizio giornata, ora)<br/>mostra subito i passi di oggi"]
-    CheckIOS -- No (Android) --> WaitStart["Aspetta che l'utente prema AVVIA"]
+    CheckIOS -- "No (Android)" --> WaitStart["Aspetta che l'utente prema AVVIA"]
 
     NoPed --> Ready
     InitialQuery --> Ready
