@@ -276,35 +276,49 @@ quanti giorni consecutivi (andando a ritroso da oggi) hanno raggiunto quell'obie
 viene raggiunto), esattamente come il concetto di "streak" di Duolingo. La logica è coperta da
 `src/historyStore.test.ts`.
 
-### Avatar in 3D vero
+### Avatar in 3D vero, dettagliato ma senza rallentare il telefono
 
 L'avatar scelto nella scheda Profilo non è un'icona piatta: è un personaggio renderizzato in 3D
-con una vera pipeline grafica WebGL, esattamente come un piccolo videogioco, non un trucco fatto
-con ombre/gradienti su un'immagine 2D.
+con una vera pipeline grafica WebGL — luci, materiali, una ventina di forme per personaggio —
+esattamente come in un piccolo videogioco, non un trucco fatto con ombre su un'immagine 2D.
+La tecnica usata è la stessa, collaudata, di un altro progetto Expo dell'autore che disegna
+decine di personaggi 3D in tempo reale su schermo.
 
 - **`expo-gl`** fornisce un contesto WebGL dentro un componente `<GLView>` (incluso in Expo Go,
   nessuna build nativa richiesta).
-- **`expo-three`** fa da ponte fra quel contesto e **`three.js`**, la libreria 3D più usata sul
-  web: la sua classe `Renderer` estende `THREE.WebGLRenderer` collegandolo al contesto di
-  `expo-gl` invece che a un `<canvas>` del browser.
-- **`src/avatarModel.ts`** costruisce il personaggio con primitive geometriche (sfere, coni,
-  cilindri, capsule) assemblate in base alla "specie" scelta (8 disponibili: Tondo, Robot, Gatto,
-  Coniglio, Alieno, Panda, Unicorno, Ape) — niente modelli 3D scaricati da internet. Il colore
-  scelto dall'utente tinge il materiale del corpo/testa; le forme aggiuntive (orecchie, antenna,
-  corno, ali...) distinguono ogni specie.
-- **`src/Avatar3D.tsx`** crea la scena (luci, camera, il personaggio) al montaggio del
-  componente e la ridisegna ad ogni frame con `requestAnimationFrame`, facendo ruotare
-  lentamente il personaggio sull'asse verticale con un leggero "respiro" verticale (oscillazione
-  sinusoidale) per dare l'idea di qualcosa di vivo, non di una foto statica. Il ciclo si ferma
-  (`cancelAnimationFrame`) quando il componente viene smontato, per non continuare a disegnare
-  a vuoto quando la scheda Profilo non è visibile.
+- **`@react-three/fiber`** (r3f) è il "React" sopra **`three.js`** — permette di descrivere la
+  scena 3D con componenti JSX (`<mesh>`, `<ambientLight>`, ecc.) invece che con chiamate
+  imperative. `src/avatar3d/r3f.ts` e `r3f.native.ts` sono due file "gemelli": Metro sceglie
+  automaticamente quello giusto in base alla piattaforma (suffisso `.native.ts` per
+  Android/iOS, altrimenti il file `.ts` semplice per il Web), così il resto del codice importa
+  sempre `./r3f` senza doversi preoccupare della differenza. La variante nativa include anche una
+  piccola "pezza" per `THREE.LoaderUtils`, che le versioni recenti di three.js hanno rimosso ma
+  che react-three-fiber si aspetta ancora di trovare.
+- **`src/avatar3d/prims.tsx`** definisce i "mattoncini" (sfera, capsula, scatola con spigoli
+  arrotondati, cono, occhio a tre strati con pupilla e un puntino di luce) usati per comporre il
+  personaggio, con le geometrie e i materiali tenuti in cache per non ricrearli ad ogni render.
+- **`src/avatar3d/Character3D.tsx`** assembla testa, corpo e faccia, più i dettagli che
+  distinguono ciascuna delle 8 specie (Tondo, Robot, Gatto, Coniglio, Alieno, Panda, Unicorno,
+  Ape): orecchie, baffi, antenna, corno, ali... Il colore scelto dall'utente tinge il materiale
+  di corpo/testa; i dettagli scuri (occhi, bocca) restano fissi.
+- **`src/avatar3d/Merged.tsx`** è l'ingrediente che rende possibile avere un personaggio
+  "complesso" (15-20 forme) senza rallentare nulla: appena il personaggio è montato, unisce tutte
+  le sue forme statiche in 1-2 mesh sole (con il colore di ciascun pezzo "cotto" nei vertici),
+  nascondendo gli originali. Il telefono disegna così un paio di mesh invece di venti, con lo
+  stesso risultato visivo.
+- **`src/Avatar3D.tsx`** mette in scena tutto questo: usa `frameloop="demand"` (il canvas non
+  ridisegna automaticamente 60 volte al secondo) insieme a un piccolo timer che richiede un nuovo
+  frame circa 30 volte al secondo, quanto basta per una rotazione fluida senza tenere la GPU
+  impegnata al massimo per un cerchietto piccolo di schermo. Il `dpr` (pixel per punto) è anche
+  limitato, perché un avatar di ~140 px non ha bisogno della risoluzione piena di un telefono di
+  fascia alta.
 
 Il selettore dell'avatar (la griglia delle 8 specie) resta invece fatto di semplici icone piatte
 di `@expo/vector-icons`: aprire 8 contesti WebGL contemporaneamente solo per un selettore
-sarebbe uno spreco di risorse sul telefono. Solo l'avatar effettivamente mostrato (nell'anteprima
-grande e nel pallino dell'intestazione) userebbe tutta questa pipeline — e per il pallino
-dell'intestazione, visibile in ogni schermata, si è scelta comunque l'icona piatta invece del
-rendering 3D in continuo, per non tenere un contesto grafico attivo per l'intera sessione.
+sarebbe uno spreco di risorse sul telefono. Lo stesso vale per il pallino dell'avatar
+nell'intestazione, visibile in ogni schermata: mostra l'icona piatta della specie scelta, non il
+rendering 3D in continuo, per non tenere un contesto grafico attivo per l'intera sessione. Solo
+l'anteprima grande nella scheda Profilo usa la pipeline 3D completa.
 
 ### Promemoria giornaliero ("torna domani")
 

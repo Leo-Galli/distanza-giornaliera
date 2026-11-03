@@ -35,7 +35,7 @@ flowchart TB
 
     subgraph Grafica["src/ui.tsx, theme.ts, Avatar3D.tsx"]
         UI["Componenti chunky<br/>(Card, Button, ProgressRing, BarChart, TabBar...)"]
-        Avatar3D["Avatar3D.tsx + avatarModel.ts<br/>(expo-gl + three.js)"]
+        Avatar3D["Avatar3D.tsx + avatar3d/<br/>(expo-gl + react-three-fiber)"]
     end
 
     App --> Oggi & Stats & Prof
@@ -149,7 +149,7 @@ flowchart TD
     PickSpecies --> SaveProfile["profile.saveProfile(...)"]
     PickColor --> SaveProfile
     TypeName --> SaveProfile
-    SaveProfile --> Render3D["Avatar3D.tsx: ricostruisce la scena Three.js<br/>(avatarModel.ts: forma in base alla specie, colore scelto)"]
+    SaveProfile --> Render3D["Avatar3D.tsx: ricrea la scena react-three-fiber<br/>(Character3D.tsx: forma in base alla specie, colore scelto)"]
     Render3D --> Spin["Ciclo di rendering: ruota + 'respira'<br/>finché la scheda resta montata"]
 
     ProfScreen --> PickGoal["Scegli l'obiettivo giornaliero"]

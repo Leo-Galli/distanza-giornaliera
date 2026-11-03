@@ -15,7 +15,7 @@ const VIOLET = '#8B6BD8';
 const RED = '#E4503F';
 const GOLD = '#F6B72B';
 
-/** Le "specie" del personaggio 3D (vedi avatarModel.ts per come vengono disegnate). */
+/** Le "specie" del personaggio 3D (vedi src/avatar3d/Character3D.tsx per come vengono disegnate). */
 export const AVATAR_SPECIES = ['tondo', 'robot', 'gatto', 'coniglio', 'alieno', 'panda', 'unicorno', 'ape'] as const;
 export type AvatarSpecies = (typeof AVATAR_SPECIES)[number];
 

@@ -38,7 +38,7 @@ la schermata Statistiche usa dati di esempio solo per mostrare come appare con u
 - **Statistiche** — storico degli ultimi 30 giorni, grafico a barre degli ultimi 7, totali settimanali, miglior giorno.
 - **Obiettivo giornaliero e serie ("streak")** — 4 livelli di obiettivo passi (Leggero/Normale/Attivo/Intenso) e conteggio dei giorni consecutivi in cui è stato raggiunto, stile Duolingo.
 - **Promemoria giornaliero** — notifica locale facoltativa alle 20:00 che ricorda di camminare e menziona la serie da non perdere, se attivata dall'utente nel Profilo.
-- **Avatar in 3D vero** — un personaggio reso con WebGL (`expo-gl` + `three.js`, non un'icona piatta), scelto tra 8 "specie" e 6 colori, che ruota dal vivo nella schermata Profilo.
+- **Avatar in 3D vero** — un personaggio dettagliato reso con WebGL (`expo-gl` + `@react-three/fiber` + `three.js`, non un'icona piatta), scelto tra 8 "specie" e 6 colori, che ruota dal vivo nella schermata Profilo senza rallentare il telefono.
 
 ## Avvio rapido
 
@@ -88,8 +88,8 @@ npm run typecheck   # controllo dei tipi TypeScript
 - `src/stepTracker.ts` — somma e persiste i passi di oggi letti dal sensore (su Android, dove il sensore riparte da 0 ad ogni sessione di ascolto; vedi `COME-FUNZIONA.md`).
 - `src/historyStore.ts` — storico giornaliero (max 30 giorni), calcolo della serie di giorni consecutivi con obiettivo raggiunto.
 - `src/profile.ts` — persistenza di avatar (specie/colore/nome), obiettivo giornaliero e preferenza notifiche.
-- `src/avatarModel.ts` — costruisce il personaggio 3D (forme Three.js) in base alla specie scelta.
-- `src/Avatar3D.tsx` — renderizza il personaggio con `expo-gl`/`expo-three` dentro un `GLView` che ruota in continuo.
+- `src/avatar3d/` — il personaggio 3D: primitive riusabili (`prims.tsx`), la specie scelta (`Character3D.tsx`), e `Merged.tsx` che unisce tutte le sue forme in 1-2 mesh per restare fluido.
+- `src/Avatar3D.tsx` — mette in scena il personaggio con `@react-three/fiber` dentro un `GLView` (`expo-gl`), con rotazione continua a basso impatto (`frameloop="demand"`).
 - `src/notifications.ts` — programma/cancella il promemoria locale giornaliero (`expo-notifications`).
 - `src/theme.ts` / `src/ui.tsx` — stile grafico "chunky" (pannello crema, font Lilita One, bottoni "3D", anello di progresso, grafico a barre, tab bar) e componenti riusabili.
 - `start.bat` / `start.sh` — avviano il server Expo e mostrano il QR code per Expo Go.
