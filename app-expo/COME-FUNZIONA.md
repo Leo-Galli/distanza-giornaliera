@@ -11,6 +11,8 @@ Questo documento spiega:
    della sola distanza GPS.
 4. Perché **scuotere il telefono non apre più il menu sviluppatore** di Expo Go.
 5. Da dove viene lo **stile grafico** dell'interfaccia.
+6. Come funzionano **statistiche, obiettivi, serie ("streak") e promemoria** in stile Duolingo.
+7. Come viene generato e pubblicato l'**APK Android** tramite EAS Build.
 
 L'app Python/Kivy (`distance_tracker.py`, `main.py`, `buildozer.spec`) **non è stata
 modificata**: resta la versione "storica", compilabile solo per Android tramite Buildozer.
@@ -245,6 +247,67 @@ una versione ridotta e adattata di quei due file, con solo i componenti che serv
 suoni, navigazione o economia di gioco, che non hanno senso in questa app).
 
 L'anello di progresso dei passi usa `react-native-svg` (incluso in Expo Go), con un cerchio
-tratteggiato la cui lunghezza visibile rappresenta la percentuale di un obiettivo di 10.000
-passi — una scelta comune nelle app di fitness, modificabile cambiando la costante `STEP_GOAL`
-in `App.tsx`.
+tratteggiato la cui lunghezza visibile rappresenta la percentuale rispetto all'obiettivo
+giornaliero scelto nel Profilo (vedi sezione 6).
+
+## 6. Statistiche, obiettivi, serie e promemoria
+
+Queste funzioni sono tutte "meccaniche" aggiuntive sopra ai due numeri di base (passi e
+distanza): non cambiano come vengono calcolati, solo come vengono presentati e usati per
+motivare a tornare ogni giorno.
+
+### Storico e statistiche
+
+`src/historyStore.ts` salva, per ciascuno degli ultimi 30 giorni, i passi e la distanza totali
+di quel giorno (`upsertDay`, richiamato da `App.tsx` ogni volta che uno dei due numeri cambia,
+quindi anche "in diretta" per il giorno corrente). La scheda **Statistiche**
+(`src/screens/StatsScreen.tsx`) legge questo storico per mostrare un grafico a barre degli
+ultimi 7 giorni, i totali settimanali e il giorno migliore.
+
+### Obiettivo giornaliero e serie ("streak")
+
+`src/profile.ts` definisce 4 livelli di obiettivo passi (`GOAL_PRESETS`: Leggero 5.000,
+Normale 8.000, Attivo 10.000, Intenso 15.000), scelti con lo slider a segmenti nel Profilo e
+salvati insieme al resto delle preferenze. `computeStreak` in `src/historyStore.ts` conta
+quanti giorni consecutivi (andando a ritroso da oggi) hanno raggiunto quell'obiettivo: oggi
+"non rompe" la serie finché la giornata non è finita (va soltanto a confermarla se l'obiettivo
+viene raggiunto), esattamente come il concetto di "streak" di Duolingo. La logica è coperta da
+`src/historyStore.test.ts`.
+
+### Avatar
+
+`src/profile.ts` salva anche un piccolo avatar (icona, colore, nome) scelto liberamente dalla
+scheda Profilo tra una dozzina di icone di `@expo/vector-icons` e qualche colore del tema:
+nessuna immagine esterna, per restare leggero e coerente con lo stile grafico dell'app. Viene
+mostrato come pallino nell'intestazione e in grande nella scheda Profilo.
+
+### Promemoria giornaliero ("torna domani")
+
+Se l'utente attiva l'interruttore "Promemoria giornaliero" nel Profilo, `src/notifications.ts`
+programma (con `expo-notifications`) una notifica locale **ricorrente ogni giorno alle 20:00**,
+il cui testo menziona la serie attuale ("Hai una serie di N giorni! Fai due passi oggi per non
+perderla.") per spingere a tornare prima che la giornata finisca — lo stesso meccanismo usato
+da app come Duolingo per il promemoria giornaliero. È sempre e solo una notifica **locale**,
+programmata sul telefono stesso: non esiste nessun server che tiene traccia degli utenti o
+invia notifiche da remoto. Ogni volta che la serie cambia, il testo programmato viene
+aggiornato (`scheduleDailyReminder` cancella e riprogramma la notifica).
+
+## 7. Come viene pubblicato l'APK Android
+
+L'app viene compilata in un vero file `.apk` installabile (non solo eseguita dentro Expo Go)
+tramite [EAS Build](https://docs.expo.dev/build/introduction/), il servizio cloud di Expo che
+compila l'app nativa senza bisogno di Android Studio in locale.
+
+- `eas.json` definisce un profilo `production` con `"android": { "buildType": "apk" }`: per
+  impostazione predefinita EAS Build produce un `.aab` (pensato solo per essere caricato sul
+  Play Store), mentre un `.apk` si può installare direttamente su un telefono.
+- Il progetto è collegato a un account Expo (`npx eas-cli@latest init`, che ha scritto
+  `extra.eas.projectId` in `app.json`) necessario perché EAS sappia a quale progetto cloud
+  associare le build.
+- Ogni build parte con `npx eas-cli@latest build --platform android --profile production`;
+  l'opzione `"autoIncrement": true` nel profilo fa incrementare da sola il numero di build
+  (`android.versionCode`) ad ogni nuova build, così due APK diversi non hanno mai lo stesso
+  numero di versione.
+- L'APK compilato viene scaricato e allegato a una **Release su GitHub** di questo repository
+  (`gh release create`), così chiunque possa scaricarlo dalla pagina delle Release senza
+  bisogno di un account Expo né di Expo Go — vedi il link in cima al `README.md`.

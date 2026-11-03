@@ -29,7 +29,8 @@
         "ACCESS_FINE_LOCATION",
         "ACTIVITY_RECOGNITION"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -47,7 +48,19 @@
           "motionPermission": "L'app usa il contapassi del telefono per contare i passi di oggi."
         }
       ],
-      "expo-font"
-    ]
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "color": "#4DAE3C"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b6068bc5-37d9-4474-be29-1f81b9aa9399"
+      }
+    },
+    "owner": "leogalli"
   }
 }
