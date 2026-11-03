@@ -1,6 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 
-import { Avatar, AVATAR_COLORS, AVATAR_ICONS, GOAL_PRESETS } from '../profile';
+import { Avatar3D } from '../Avatar3D';
+import { Avatar, AVATAR_COLORS, AVATAR_SPECIES, GOAL_PRESETS, SPECIES_ICON, SPECIES_LABEL } from '../profile';
 import { colors, shade, space } from '../theme';
 import { Card, Chip, Icon, Segmented, T } from '../ui';
 
@@ -19,8 +20,8 @@ export function ProfileScreen({
 
   return (
     <ScrollView contentContainerStyle={styles.body}>
-      <View style={[styles.avatarPreview, { backgroundColor: `${avatar.color}33`, borderColor: avatar.color }]}>
-        <Icon name={avatar.icon} size={56} color={shade(avatar.color, -0.15)} />
+      <View style={[styles.avatarPreview, { borderColor: avatar.color }]}>
+        <Avatar3D species={avatar.species} color={avatar.color} size={134} />
       </View>
       <TextInput
         value={avatar.name}
@@ -36,20 +37,25 @@ export function ProfileScreen({
         <T v="h2">Scegli il tuo avatar</T>
         <View style={{ height: space.sm }} />
         <View style={styles.grid}>
-          {AVATAR_ICONS.map((icon) => {
-            const selected = icon === avatar.icon;
+          {AVATAR_SPECIES.map((species) => {
+            const selected = species === avatar.species;
             return (
               <Pressable
-                key={icon}
+                key={species}
                 accessibilityRole="button"
-                accessibilityLabel={icon}
-                onPress={() => onChangeAvatar({ ...avatar, icon })}
-                style={[
-                  styles.iconCell,
-                  { borderColor: selected ? avatar.color : colors.border, backgroundColor: selected ? `${avatar.color}22` : colors.card },
-                ]}
+                accessibilityLabel={SPECIES_LABEL[species]}
+                onPress={() => onChangeAvatar({ ...avatar, species })}
+                style={styles.speciesCell}
               >
-                <Icon name={icon} size={26} color={selected ? shade(avatar.color, -0.15) : colors.muted} />
+                <View
+                  style={[
+                    styles.iconCell,
+                    { borderColor: selected ? avatar.color : colors.border, backgroundColor: selected ? `${avatar.color}22` : colors.card },
+                  ]}
+                >
+                  <Icon name={SPECIES_ICON[species]} size={26} color={selected ? shade(avatar.color, -0.15) : colors.muted} />
+                </View>
+                <T v="label" style={{ fontSize: 11 }} color={selected ? avatar.color : colors.muted}>{SPECIES_LABEL[species]}</T>
               </Pressable>
             );
           })}
@@ -104,13 +110,15 @@ export function ProfileScreen({
 const styles = StyleSheet.create({
   body: { padding: space.lg, gap: space.md, alignItems: 'center', paddingBottom: space.xl },
   avatarPreview: {
-    width: 110, height: 110, borderRadius: 55, borderWidth: 3, alignItems: 'center', justifyContent: 'center', marginTop: space.sm,
+    width: 142, height: 142, borderRadius: 71, borderWidth: 4, alignItems: 'center', justifyContent: 'center',
+    marginTop: space.sm, padding: 4, backgroundColor: colors.card,
   },
   nameInput: {
     fontFamily: 'LilitaOne_400Regular', fontSize: 20, color: colors.text, textAlign: 'center',
     borderBottomWidth: 2, borderBottomColor: colors.border, paddingVertical: 4, minWidth: 180,
   },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
+  speciesCell: { alignItems: 'center', gap: 2, width: 64 },
   iconCell: {
     width: 52, height: 52, borderRadius: 14, borderWidth: 2, alignItems: 'center', justifyContent: 'center',
   },

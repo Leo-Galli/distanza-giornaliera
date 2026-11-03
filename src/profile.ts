@@ -15,8 +15,40 @@ const VIOLET = '#8B6BD8';
 const RED = '#E4503F';
 const GOLD = '#F6B72B';
 
+/** Le "specie" del personaggio 3D (vedi avatarModel.ts per come vengono disegnate). */
+export const AVATAR_SPECIES = ['tondo', 'robot', 'gatto', 'coniglio', 'alieno', 'panda', 'unicorno', 'ape'] as const;
+export type AvatarSpecies = (typeof AVATAR_SPECIES)[number];
+
+/** Icona piatta (MaterialCommunityIcons) per rappresentare ogni specie nel selettore: il
+ *  selettore resta leggero (niente contesti WebGL per 8 celle), l'avatar vero è in 3D. */
+export const SPECIES_ICON: Record<AvatarSpecies, string> = {
+  tondo: 'emoticon-happy',
+  robot: 'robot-happy',
+  gatto: 'cat',
+  coniglio: 'rabbit',
+  alieno: 'alien',
+  panda: 'panda',
+  unicorno: 'unicorn',
+  ape: 'bee',
+};
+
+export const SPECIES_LABEL: Record<AvatarSpecies, string> = {
+  tondo: 'Tondo',
+  robot: 'Robot',
+  gatto: 'Gatto',
+  coniglio: 'Coniglio',
+  alieno: 'Alieno',
+  panda: 'Panda',
+  unicorno: 'Unicorno',
+  ape: 'Ape',
+};
+
+function isAvatarSpecies(value: unknown): value is AvatarSpecies {
+  return typeof value === 'string' && (AVATAR_SPECIES as readonly string[]).includes(value);
+}
+
 export interface Avatar {
-  icon: string;
+  species: AvatarSpecies;
   color: string;
   name: string;
 }
@@ -26,10 +58,6 @@ export interface Profile {
   goalSteps: number;
   notificationsEnabled: boolean;
 }
-
-export const AVATAR_ICONS = [
-  'emoticon-happy', 'emoticon-cool', 'robot-happy', 'alien', 'cat', 'dog', 'owl', 'panda', 'rabbit', 'unicorn', 'bee', 'turtle',
-];
 
 export const AVATAR_COLORS = [LIME, AMBER, TEAL, VIOLET, RED, GOLD];
 
@@ -47,7 +75,7 @@ export const GOAL_PRESETS: GoalPreset[] = [
 ];
 
 export const DEFAULT_PROFILE: Profile = {
-  avatar: { icon: 'emoticon-happy', color: LIME, name: 'Camminatore' },
+  avatar: { species: 'tondo', color: LIME, name: 'Camminatore' },
   goalSteps: 10000,
   notificationsEnabled: false,
 };
@@ -57,7 +85,7 @@ function isValidProfile(data: unknown): data is Profile {
   const p = data as Partial<Profile>;
   return (
     !!p.avatar &&
-    typeof p.avatar.icon === 'string' &&
+    isAvatarSpecies(p.avatar.species) &&
     typeof p.avatar.color === 'string' &&
     typeof p.avatar.name === 'string' &&
     Number.isFinite(p.goalSteps) &&

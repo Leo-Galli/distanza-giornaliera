@@ -12,7 +12,8 @@ Questo documento spiega:
    della sola distanza GPS.
 4. Perché **scuotere il telefono non apre più il menu sviluppatore** di Expo Go.
 5. Da dove viene lo **stile grafico** dell'interfaccia.
-6. Come funzionano **statistiche, obiettivi, serie ("streak") e promemoria** in stile Duolingo.
+6. Come funzionano **statistiche, obiettivi, serie ("streak"), avatar 3D e promemoria** in
+   stile Duolingo.
 7. Come viene generato e pubblicato l'**APK Android** tramite EAS Build.
 
 La versione Python/Kivy in [`python-kivy/`](python-kivy) (`distance_tracker.py`, `main.py`,
@@ -275,12 +276,35 @@ quanti giorni consecutivi (andando a ritroso da oggi) hanno raggiunto quell'obie
 viene raggiunto), esattamente come il concetto di "streak" di Duolingo. La logica è coperta da
 `src/historyStore.test.ts`.
 
-### Avatar
+### Avatar in 3D vero
 
-`src/profile.ts` salva anche un piccolo avatar (icona, colore, nome) scelto liberamente dalla
-scheda Profilo tra una dozzina di icone di `@expo/vector-icons` e qualche colore del tema:
-nessuna immagine esterna, per restare leggero e coerente con lo stile grafico dell'app. Viene
-mostrato come pallino nell'intestazione e in grande nella scheda Profilo.
+L'avatar scelto nella scheda Profilo non è un'icona piatta: è un personaggio renderizzato in 3D
+con una vera pipeline grafica WebGL, esattamente come un piccolo videogioco, non un trucco fatto
+con ombre/gradienti su un'immagine 2D.
+
+- **`expo-gl`** fornisce un contesto WebGL dentro un componente `<GLView>` (incluso in Expo Go,
+  nessuna build nativa richiesta).
+- **`expo-three`** fa da ponte fra quel contesto e **`three.js`**, la libreria 3D più usata sul
+  web: la sua classe `Renderer` estende `THREE.WebGLRenderer` collegandolo al contesto di
+  `expo-gl` invece che a un `<canvas>` del browser.
+- **`src/avatarModel.ts`** costruisce il personaggio con primitive geometriche (sfere, coni,
+  cilindri, capsule) assemblate in base alla "specie" scelta (8 disponibili: Tondo, Robot, Gatto,
+  Coniglio, Alieno, Panda, Unicorno, Ape) — niente modelli 3D scaricati da internet. Il colore
+  scelto dall'utente tinge il materiale del corpo/testa; le forme aggiuntive (orecchie, antenna,
+  corno, ali...) distinguono ogni specie.
+- **`src/Avatar3D.tsx`** crea la scena (luci, camera, il personaggio) al montaggio del
+  componente e la ridisegna ad ogni frame con `requestAnimationFrame`, facendo ruotare
+  lentamente il personaggio sull'asse verticale con un leggero "respiro" verticale (oscillazione
+  sinusoidale) per dare l'idea di qualcosa di vivo, non di una foto statica. Il ciclo si ferma
+  (`cancelAnimationFrame`) quando il componente viene smontato, per non continuare a disegnare
+  a vuoto quando la scheda Profilo non è visibile.
+
+Il selettore dell'avatar (la griglia delle 8 specie) resta invece fatto di semplici icone piatte
+di `@expo/vector-icons`: aprire 8 contesti WebGL contemporaneamente solo per un selettore
+sarebbe uno spreco di risorse sul telefono. Solo l'avatar effettivamente mostrato (nell'anteprima
+grande e nel pallino dell'intestazione) userebbe tutta questa pipeline — e per il pallino
+dell'intestazione, visibile in ogni schermata, si è scelta comunque l'icona piatta invece del
+rendering 3D in continuo, per non tenere un contesto grafico attivo per l'intera sessione.
 
 ### Promemoria giornaliero ("torna domani")
 

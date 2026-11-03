@@ -23,3 +23,7 @@ yarn-error.*
 .DS_Store
 *.pem
 .env*.local
+
+# --- local agent/editor config, never tracked ---
+.claude/
+AGENTS.md

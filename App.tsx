@@ -9,7 +9,7 @@ import { Platform, View } from 'react-native';
 import { DailyDistanceTracker, FixResult } from './src/distanceTracker';
 import { computeStreak, DayEntry, loadHistory, upsertDay } from './src/historyStore';
 import { cancelDailyReminder, requestNotificationPermission, scheduleDailyReminder } from './src/notifications';
-import { Avatar, DEFAULT_PROFILE, loadProfile, Profile, saveProfile } from './src/profile';
+import { Avatar, DEFAULT_PROFILE, loadProfile, Profile, saveProfile, SPECIES_ICON } from './src/profile';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { StatsScreen } from './src/screens/StatsScreen';
 import { TodayScreen } from './src/screens/TodayScreen';
@@ -267,7 +267,7 @@ export default function App() {
           <Icon name={activeTab.icon} size={24} color="#fff" />
           <T v="h2" color="#fff" style={styles.headerTitle}>{activeTab.title}</T>
           <View style={[styles.avatarPill, { borderColor: profile.avatar.color }]}>
-            <Icon name={profile.avatar.icon} size={18} color={profile.avatar.color} />
+            <Icon name={SPECIES_ICON[profile.avatar.species]} size={18} color={profile.avatar.color} />
           </View>
         </View>
 

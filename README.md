@@ -9,6 +9,9 @@ installabile come **APK Android** già pronto (vedi [Scarica l'APK](#scarica-lap
 > Expo per girare anche su iPhone. Il motore di calcolo della distanza (`src/distanceTracker.ts`)
 > è un porting 1:1, non modificato, di `python-kivy/distance_tracker.py`: stessa formula di
 > Haversine, stessi filtri su precisione/rumore/salti GPS, stesso azzeramento a mezzanotte.
+>
+> Per capire come è fatta l'app a colpo d'occhio: [`FLOWCHART.md`](./FLOWCHART.md) (schemi) e
+> [`COME-FUNZIONA.md`](./COME-FUNZIONA.md) (spiegazione dettagliata).
 
 ## Anteprima
 
@@ -35,7 +38,7 @@ la schermata Statistiche usa dati di esempio solo per mostrare come appare con u
 - **Statistiche** — storico degli ultimi 30 giorni, grafico a barre degli ultimi 7, totali settimanali, miglior giorno.
 - **Obiettivo giornaliero e serie ("streak")** — 4 livelli di obiettivo passi (Leggero/Normale/Attivo/Intenso) e conteggio dei giorni consecutivi in cui è stato raggiunto, stile Duolingo.
 - **Promemoria giornaliero** — notifica locale facoltativa alle 20:00 che ricorda di camminare e menziona la serie da non perdere, se attivata dall'utente nel Profilo.
-- **Avatar personalizzabile** — icona, colore e nome, scelti liberamente nella schermata Profilo.
+- **Avatar in 3D vero** — un personaggio reso con WebGL (`expo-gl` + `three.js`, non un'icona piatta), scelto tra 8 "specie" e 6 colori, che ruota dal vivo nella schermata Profilo.
 
 ## Avvio rapido
 
@@ -84,7 +87,9 @@ npm run typecheck   # controllo dei tipi TypeScript
 - `src/distanceTracker.test.ts` — porting dei test di `python-kivy/tests/test_distance_tracker.py`.
 - `src/stepTracker.ts` — somma e persiste i passi di oggi letti dal sensore (su Android, dove il sensore riparte da 0 ad ogni sessione di ascolto; vedi `COME-FUNZIONA.md`).
 - `src/historyStore.ts` — storico giornaliero (max 30 giorni), calcolo della serie di giorni consecutivi con obiettivo raggiunto.
-- `src/profile.ts` — persistenza di avatar, obiettivo giornaliero e preferenza notifiche.
+- `src/profile.ts` — persistenza di avatar (specie/colore/nome), obiettivo giornaliero e preferenza notifiche.
+- `src/avatarModel.ts` — costruisce il personaggio 3D (forme Three.js) in base alla specie scelta.
+- `src/Avatar3D.tsx` — renderizza il personaggio con `expo-gl`/`expo-three` dentro un `GLView` che ruota in continuo.
 - `src/notifications.ts` — programma/cancella il promemoria locale giornaliero (`expo-notifications`).
 - `src/theme.ts` / `src/ui.tsx` — stile grafico "chunky" (pannello crema, font Lilita One, bottoni "3D", anello di progresso, grafico a barre, tab bar) e componenti riusabili.
 - `start.bat` / `start.sh` — avviano il server Expo e mostrano il QR code per Expo Go.
